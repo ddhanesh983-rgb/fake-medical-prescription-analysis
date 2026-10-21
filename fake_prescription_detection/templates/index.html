@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Fake Medical Prescription Detection{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+    <!-- Hero Section -->
+    <div class="row align-items-center g-5 py-4">
+        <div class="col-lg-7">
+            <span class="text-primary fw-semibold small text-uppercase tracking-wider">B.Sc. Data Science Research Initiative</span>
+            <h1 class="display-5 fw-bold text-dark mt-2 mb-3">
+                Fake Medical Prescription Detection Using Machine Learning
+            </h1>
+            <p class="lead text-muted mb-4">
+                An intelligent multi-stage screening system combining OpenCV image enhancement, Tesseract OCR entity extraction, anomaly rule scoring, and scikit-learn classification to triage suspicious medical prescriptions.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <a href="{{ url_for('detect') }}" class="btn btn-primary btn-lg px-4 fw-semibold">
+                    Analyze Prescription
+                </a>
+                <a href="{{ url_for('dashboard_view') }}" class="btn btn-outline-secondary btn-lg px-4">
+                    View Live Dashboard
+                </a>
+            </div>
+            
+            <div class="row mt-4 pt-3 border-top g-3 text-muted small">
+                <div class="col-sm-4">
+                    <strong class="d-block text-dark fs-5">{{ stats.total }}</strong>
+                    Prescriptions Screened
+                </div>
+                <div class="col-sm-4">
+                    <strong class="d-block text-dark fs-5">{{ stats.suspicious }}</strong>
+                    Suspicious Triages
+                </div>
+                <div class="col-sm-4">
+                    <strong class="d-block text-dark fs-5">Multi-Stage</strong>
+                    OCR + ML Pipeline
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm p-4 bg-white rounded-3">
+                <div class="border rounded-2 p-3 bg-light text-center mb-3">
+                    <div class="display-1 text-primary mb-2">📋</div>
+                    <h5 class="fw-bold mb-1">Prescription Screening Core</h5>
+                    <p class="text-muted small mb-0">Automated verification of physician credentials, dates, dosage schedules, and authorization signatures.</p>
+                </div>
+                <div class="list-group list-group-flush small">
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Doctor Registration Check</span>
+                        <span class="badge bg-success-subtle text-success">Medical Council</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Chronological Consistency</span>
+                        <span class="badge bg-info-subtle text-info">Date Analysis</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Controlled Narcotic Alerts</span>
+                        <span class="badge bg-warning-subtle text-warning">Schedule II</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span>Machine Learning Scoring</span>
+                        <span class="badge bg-primary-subtle text-primary">TF-IDF Vector</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Features Section -->
+    <div class="my-5 py-4">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold text-dark">How The Screening Engine Works</h2>
+            <p class="text-muted">A comprehensive 4-step pipeline designed for high-throughput pharmacy intake screening.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="text-primary fs-3 mb-2">01.</div>
+                    <h5 class="fw-bold">Image Preprocessing</h5>
+                    <p class="text-muted small">OpenCV applies CLAHE contrast adjustment, bilateral noise suppression, and adaptive thresholding to maximize character legibility.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="text-primary fs-3 mb-2">02.</div>
+                    <h5 class="fw-bold">Tesseract OCR</h5>
+                    <p class="text-muted small">Transforms visual prescription text into structured character streams with layout segmentation.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="text-primary fs-3 mb-2">03.</div>
+                    <h5 class="fw-bold">Pattern & NLP Rules</h5>
+                    <p class="text-muted small">Identifies physician registration identifiers, dates, high-risk Schedule II opioids, and missing physical signature stamps.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 border-0 shadow-sm p-3">
+                    <div class="text-primary fs-3 mb-2">04.</div>
+                    <h5 class="fw-bold">ML Classification</h5>
+                    <p class="text-muted small">Scikit-learn TF-IDF classifier assesses corpus similarity to generate a calibrated risk score and downloadable PDF audit report.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disclaimer Callout Box -->
+    <div class="alert alert-secondary border p-4 my-4">
+        <h5 class="alert-heading fw-bold">Academic Screening Tool Disclaimer</h5>
+        <p class="mb-0 small text-muted">
+            This application is developed as an academic project for a Bachelor of Science in Data Science. It serves exclusively as a triage support tool to highlight anomalous or missing information. The system does not claim or certify definitive guilt or authenticity; final dispensing decisions remain the exclusive responsibility of certified healthcare professionals.
+        </p>
+    </div>
+</div>
+{% endblock %}

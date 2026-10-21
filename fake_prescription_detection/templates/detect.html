@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Detect Prescription - RxShield{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 p-md-5 bg-white">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-dark">Analyze Medical Prescription</h2>
+                    <p class="text-muted">Upload a digital scan or clear photograph of the medical prescription for screening.</p>
+                </div>
+
+                <form id="uploadForm" action="{{ url_for('analyze') }}" method="POST" enctype="multipart/form-data">
+                    <!-- Drag and Drop Dropzone -->
+                    <div id="dropZone" class="border border-2 border-dashed rounded-3 p-5 text-center mb-4 cursor-pointer bg-light transition-all">
+                        <div id="dropZonePrompt">
+                            <div class="fs-1 text-primary mb-3">📄</div>
+                            <h5 class="fw-semibold mb-2">Drag and drop prescription document here</h5>
+                            <p class="text-muted small mb-3">Supports JPG, JPEG, PNG, or PDF format (Max: 10 MB)</p>
+                            <label for="prescriptionInput" class="btn btn-outline-primary px-4">Browse Files</label>
+                            <input type="file" id="prescriptionInput" name="prescription" class="d-none" accept=".jpg,.jpeg,.png,.pdf" required>
+                        </div>
+
+                        <!-- Image Preview Container -->
+                        <div id="previewContainer" class="d-none">
+                            <img id="imagePreview" src="#" alt="Prescription Preview" class="img-fluid rounded mb-3 shadow-sm" style="max-height: 280px; object-fit: contain;">
+                            <div class="small text-muted mb-2">
+                                <span id="fileName" class="fw-semibold text-dark"></span> · <span id="fileSize"></span>
+                            </div>
+                            <button type="button" id="clearBtn" class="btn btn-sm btn-outline-danger">Clear Selection</button>
+                        </div>
+                    </div>
+
+                    <!-- Client-side Validation Error -->
+                    <div id="clientError" class="alert alert-danger d-none py-2 small" role="alert"></div>
+
+                    <!-- Actions -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" id="analyzeBtn" class="btn btn-primary btn-lg fw-semibold" disabled>
+                            Analyze Prescription
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Processing Loading State Overlay -->
+                <div id="loadingOverlay" class="d-none text-center my-4 py-4">
+                    <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                        <span class="visually-hidden">Processing...</span>
+                    </div>
+                    <h5 class="fw-bold mb-1">Executing Prescription Screening Engine</h5>
+                    <p class="text-muted small mb-3">Applying OpenCV image enhancement, extracting OCR text, and computing anomaly scores...</p>
+                    <div class="progress" style="height: 6px;">
+                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 75%"></div>
+                    </div>
+                </div>
+
+                <!-- Academic Note -->
+                <div class="mt-4 pt-3 border-top text-muted small text-center">
+                    <strong>Notice:</strong> High-resolution, well-lit photographs without heavy perspective distortion provide the highest OCR character extraction accuracy.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const input = document.getElementById('prescriptionInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const promptContainer = document.getElementById('dropZonePrompt');
+    const imagePreview = document.getElementById('imagePreview');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const clearBtn = document.getElementById('clearBtn');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const clientError = document.getElementById('clientError');
+    const uploadForm = document.getElementById('uploadForm');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    function showError(msg) {
+        clientError.textContent = msg;
+        clientError.classList.remove('d-none');
+        analyzeBtn.disabled = true;
+    }
+
+    function clearError() {
+        clientError.textContent = '';
+        clientError.classList.add('d-none');
+    }
+
+    function handleFile(file) {
+        clearError();
+        if (!file) return;
+
+        // Size check (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            showError("File size exceeds 10 MB limit.");
+            return;
+        }
+
+        const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+        if (!validTypes.includes(file.type) && !file.name.match(/\.(jpg|jpeg|png|pdf)$/i)) {
+            showError("Invalid file type. Please upload a JPG, PNG, or PDF prescription.");
+            return;
+        }
+
+        fileName.textContent = file.name;
+        fileSize.textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.classList.add('d-none');
+        }
+
+        promptContainer.classList.add('d-none');
+        previewContainer.classList.remove('d-none');
+        analyzeBtn.disabled = false;
+    }
+
+    input.addEventListener('change', (e) => {
+        if (e.target.files.length) handleFile(e.target.files[0]);
+    });
+
+    clearBtn.addEventListener('click', () => {
+        input.value = '';
+        imagePreview.src = '#';
+        promptContainer.classList.remove('d-none');
+        previewContainer.classList.add('d-none');
+        analyzeBtn.disabled = true;
+        clearError();
+    });
+
+    // Drag and drop events
+    ['dragenter', 'dragover'].forEach(name => {
+        dropZone.addEventListener(name, (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-primary', 'bg-white');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(name => {
+        dropZone.addEventListener(name, (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-primary', 'bg-white');
+        });
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        if (e.dataTransfer.files.length) {
+            input.files = e.dataTransfer.files;
+            handleFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    uploadForm.addEventListener('submit', () => {
+        analyzeBtn.disabled = true;
+        loadingOverlay.classList.remove('d-none');
+    });
+</script>
+{% endblock %}

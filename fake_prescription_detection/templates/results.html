@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Screening Results - RxShield{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+    <!-- Top Status Header Card -->
+    <div class="card border-0 shadow-sm p-4 mb-4 bg-white">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="text-muted small">Screening Report #{{ record_id }} · File: <strong>{{ filename }}</strong> · Processing: {{ processing_time }} ms</span>
+                <h3 class="fw-bold mt-1 mb-0 
+                    {% if 'Suspicious' in status %}text-danger{% elif 'No Suspicious' in status %}text-success{% else %}text-warning{% endif %}">
+                    {{ status }}
+                </h3>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ report_url }}" class="btn btn-outline-primary" target="_blank">
+                    Download PDF Report
+                </a>
+                <a href="{{ url_for('detect') }}" class="btn btn-primary">
+                    Upload Another Prescription
+                </a>
+            </div>
+        </div>
+
+        <div class="mt-3 pt-3 border-top d-flex flex-wrap align-items-center justify-content-between text-muted small">
+            <div>
+                <strong>Classifier Framework:</strong> {{ model_output.mode }} · <strong>Predicted Category:</strong> {{ model_output.prediction }}
+            </div>
+            <div>
+                <strong>Calculated Risk Score:</strong> <span class="fw-bold fs-6 text-dark font-monospace">{{ risk_score }} / 100</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="row g-4">
+        <!-- Left Column: Document Image & Extracted OCR Text -->
+        <div class="col-lg-5">
+            <!-- Uploaded Document Preview -->
+            <div class="card border-0 shadow-sm p-3 mb-4 bg-white">
+                <h6 class="fw-bold text-dark mb-2">Original Prescription Document</h6>
+                <div class="bg-light rounded p-2 text-center" style="max-height: 380px; overflow-y: auto;">
+                    <img src="{{ image_url }}" alt="Prescription" class="img-fluid rounded" style="max-height: 360px;">
+                </div>
+            </div>
+
+            <!-- Extracted OCR Raw Stream -->
+            <div class="card border-0 shadow-sm p-3 bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold text-dark mb-0">Tesseract OCR Extracted Text</h6>
+                    <span class="badge bg-secondary-subtle text-secondary small">{{ extracted_text|length }} characters</span>
+                </div>
+                <div class="bg-light p-3 rounded font-monospace small" style="max-height: 250px; overflow-y: auto; white-space: pre-wrap; font-size: 0.8rem;">
+                    {{ extracted_text if extracted_text else "No textual characters could be extracted from this document." }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Extracted Fields & Suspicious Indicators -->
+        <div class="col-lg-7">
+            <!-- Detected Clinical Metadata Card -->
+            <div class="card border-0 shadow-sm p-4 mb-4 bg-white">
+                <h5 class="fw-bold text-dark mb-3">Extracted Clinical Fields</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm align-middle mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="bg-light text-muted w-35">Doctor Name</th>
+                                <td class="fw-semibold">{{ fields.doctor_name if fields.doctor_name else '<span class="text-muted">Not detected</span>'|safe }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-muted">Medical Council Reg. No</th>
+                                <td>{{ fields.doctor_reg_no if fields.doctor_reg_no else '<span class="text-danger fw-semibold">Not detected (Missing)</span>'|safe }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-muted">Clinic / Hospital</th>
+                                <td>{{ fields.clinic_hospital if fields.clinic_hospital else '<span class="text-muted">Not detected</span>'|safe }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-muted">Patient Name</th>
+                                <td>{{ fields.patient_name if fields.patient_name else '<span class="text-muted">Not detected</span>'|safe }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-muted">Prescription Date</th>
+                                <td>{{ fields.date if fields.date else '<span class="text-warning fw-semibold">Omitted / Inconclusive</span>'|safe }}</td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-muted">Signature / Stamp Region</th>
+                                <td>
+                                    {% if fields.has_signature_stamp %}
+                                        <span class="text-success fw-semibold">Ink stroke / stamp density detected</span>
+                                    {% else %}
+                                        <span class="text-danger fw-semibold">No distinct signature or stamp detected</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="bg-light text-muted">Detected Medications</th>
+                                <td>
+                                    {% if fields.medicines %}
+                                        <ul class="mb-0 ps-3 small">
+                                            {% for med in fields.medicines %}
+                                                <li>{{ med }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                        <span class="text-muted small">No structured medication/dosage lines parsed</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Suspicious Indicators Checklist -->
+            <div class="card border-0 shadow-sm p-4 bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold text-dark mb-0">Suspicious Indicators & Risk Drivers</h5>
+                    <span class="badge {% if flags %}bg-danger{% else %}bg-success{% endif %}">
+                        {{ flags|length }} Flags Identified
+                    </span>
+                </div>
+
+                {% if flags %}
+                    <div class="d-flex flex-column gap-3">
+                        {% for flag in flags %}
+                            <div class="border rounded p-3 bg-light">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <h6 class="fw-bold text-dark mb-0">{{ flag.title }}</h6>
+                                    <span class="badge {% if flag.severity == 'high' %}bg-danger-subtle text-danger{% elif flag.severity == 'medium' %}bg-warning-subtle text-warning{% else %}bg-secondary-subtle text-secondary{% endif %}">
+                                        {{ flag.severity|upper }} RISK (+{{ flag.penalty }} pts)
+                                    </span>
+                                </div>
+                                <p class="text-muted small mb-0">{{ flag.explanation }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-success border-0 mb-0 py-3 small">
+                        <strong>Nominal Findings:</strong> No high-risk anomalies or structural discrepancies were triggered by the automated screening rules.
+                    </div>
+                {% endif %}
+
+                <!-- Educational Verification Note -->
+                <div class="mt-4 pt-3 border-top text-muted small">
+                    <strong>Triage Guideline:</strong> In accordance with clinical protocols, prescriptions with risk scores exceeding 50 require immediate phone verification with the issuing clinic.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

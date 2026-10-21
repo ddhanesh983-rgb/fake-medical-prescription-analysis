@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}About the Project - RxShield{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Header Section -->
+            <div class="card border-0 shadow-sm p-4 p-md-5 bg-white mb-4">
+                <span class="text-primary fw-semibold small text-uppercase">B.Sc. Data Science Capstone Project</span>
+                <h2 class="fw-bold text-dark mt-1 mb-3">Fake Medical Prescription Detection Using Machine Learning & Python</h2>
+                <p class="lead text-muted mb-0">
+                    A multi-layered technological approach designed to empower pharmacists and healthcare institutions with automated screening tools to counter prescription fraud and illicit drug diversion.
+                </p>
+            </div>
+
+            <!-- Problem & Limitations Section -->
+            <div class="card border-0 shadow-sm p-4 bg-white mb-4">
+                <h4 class="fw-bold text-dark mb-3">Problem Statement & Existing Limitations</h4>
+                <p class="text-muted small">
+                    Prescription fraud contributes significantly to the opioid epidemic, medication diversion, and pharmacy liability. Traditional verification suffers from severe bottlenecks:
+                </p>
+                <div class="row g-3 small">
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded h-100">
+                            <strong class="d-block text-dark mb-1">Manual Phone Verification</strong>
+                            <p class="text-muted mb-0">Dispensaries often face busy clinics or delayed callbacks, forcing rushed triage during peak hours.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded h-100">
+                            <strong class="d-block text-dark mb-1">Visual Forgery Sophistication</strong>
+                            <p class="text-muted mb-0">Desktop publishing tools allow bad actors to replicate letterheads, medical logos, and physician stamps.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded h-100">
+                            <strong class="d-block text-dark mb-1">Human Fatigue</strong>
+                            <p class="text-muted mb-0">Subtle anomalies like slightly future dates, altered dosage units, or fabricated registration numbers escape manual review.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Proposed Architecture Section -->
+            <div class="card border-0 shadow-sm p-4 bg-white mb-4">
+                <h4 class="fw-bold text-dark mb-3">Proposed System Architecture</h4>
+                <div class="row g-4 small text-muted">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-dark">Computer Vision (OpenCV)</h6>
+                        <p>Applies adaptive histogram equalization (CLAHE) and bilateral filtering to normalize document illumination and enhance degraded text contrast.</p>
+                        <h6 class="fw-bold text-dark">Optical Character Recognition (Tesseract)</h6>
+                        <p>Transcribes visual typography into machine-readable unicode text with spatial bounding coordination.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-dark">Rule-Based Clinical Auditor</h6>
+                        <p>Validates state/national doctor registration IDs, patient demographics, chronological validity, and flags Schedule II controlled substances.</p>
+                        <h6 class="fw-bold text-dark">Machine Learning Model (Scikit-Learn)</h6>
+                        <p>Extracts TF-IDF n-gram vectors and computes class probabilities using Logistic Regression / Random Forest classifiers.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Methodology & Evaluation -->
+            <div class="card border-0 shadow-sm p-4 bg-white mb-4">
+                <h4 class="fw-bold text-dark mb-3">Machine Learning Methodology & Evaluation</h4>
+                <p class="text-muted small">
+                    The machine-learning pipeline enforces strict data separation between training and test sets to eliminate data leakage. The model is evaluated through standard statistical metrics:
+                </p>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm small align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Metric</th>
+                                <th>Clinical Formula</th>
+                                <th>Screening Significance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-semibold">Precision</td>
+                                <td class="font-monospace">TP / (TP + FP)</td>
+                                <td>Minimizes false alarms that unduly inconvenience legitimate patients.</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold">Recall (Sensitivity)</td>
+                                <td class="font-monospace">TP / (TP + FN)</td>
+                                <td>Crucial for catching fraudulent documents before illicit dispensing.</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold">F1-Score</td>
+                                <td class="font-monospace">2 * (P * R) / (P + R)</td>
+                                <td>Harmonic balance between precision and recall across imbalanced data.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Ethical AI and Future Scope -->
+            <div class="card border-0 shadow-sm p-4 bg-white">
+                <h4 class="fw-bold text-dark mb-2">Future Enhancements & Ethical Guardrails</h4>
+                <p class="text-muted small mb-3">
+                    Future work focuses on integrating live API lookups with National Medical Councils, electronic prescription signature validation, and federated learning across hospital networks.
+                </p>
+                <div class="alert alert-warning border-0 small mb-0">
+                    <strong>Responsible AI Protocol:</strong> Automated systems must never render final punitive decisions. All suspicious classifications trigger human-in-the-loop review by licensed medical practitioners.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

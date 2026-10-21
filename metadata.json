@@ -1,0 +1,6 @@
+{
+  "name": "RxShield - Fake Prescription Screening System",
+  "description": "B.Sc. Data Science screening platform for detecting suspicious indicators in medical prescriptions using OCR, NLP rule validation, and machine learning classification.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

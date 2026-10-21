@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Screening History - RxShield{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card border-0 shadow-sm bg-white p-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold text-dark mb-1">Prescription Screening Audit Trail</h3>
+                <p class="text-muted small mb-0">Searchable repository of all processed prescription screening evaluations.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search by file name or verdict..." style="width: 260px;">
+                <a href="{{ url_for('detect') }}" class="btn btn-sm btn-primary">Scan Prescription</a>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle small mb-0" id="historyTable">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 80px;">ID</th>
+                        <th style="width: 160px;">Date & Time</th>
+                        <th>Document File</th>
+                        <th>Screening Verdict</th>
+                        <th style="width: 100px;">Risk Score</th>
+                        <th style="width: 120px;">Doctor Reg</th>
+                        <th style="width: 180px;" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in records %}
+                        <tr>
+                            <td class="font-monospace fw-semibold">#{{ row.id }}</td>
+                            <td class="text-muted">{{ row.timestamp }}</td>
+                            <td class="fw-medium text-dark">{{ row.filename }}</td>
+                            <td>
+                                <span class="badge {% if 'Suspicious' in row.status %}bg-danger-subtle text-danger{% elif 'No Suspicious' in row.status %}bg-success-subtle text-success{% else %}bg-warning-subtle text-warning{% endif %}">
+                                    {{ row.status }}
+                                </span>
+                            </td>
+                            <td class="font-monospace fw-bold">{{ row.risk_score }} / 100</td>
+                            <td class="text-muted">
+                                {{ row.detected_fields.doctor_reg_no if row.detected_fields and row.detected_fields.doctor_reg_no else 'Missing' }}
+                            </td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-1">
+                                    {% if row.report_filename %}
+                                        <a href="{{ url_for('view_report', record_id=row.id) }}" class="btn btn-sm btn-outline-primary py-0 px-2" title="Download PDF">
+                                            PDF
+                                        </a>
+                                    {% endif %}
+                                    <form action="{{ url_for('delete_record', record_id=row.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete screening record #{{ row.id }}?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr id="noRecordsRow">
+                            <td colspan="7" class="text-center text-muted py-5">
+                                No prescription screening evaluations found. Upload a prescription to begin.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const table = document.getElementById('historyTable');
+    
+    if (searchInput && table) {
+        searchInput.addEventListener('keyup', function() {
+            const filter = searchInput.value.toLowerCase();
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            for (let i = 0; i < rows.length; i++) {
+                if (rows[i].id === 'noRecordsRow') continue;
+                const text = rows[i].textContent.toLowerCase();
+                rows[i].style.display = text.indexOf(filter) > -1 ? '' : 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

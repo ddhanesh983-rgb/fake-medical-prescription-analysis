@@ -1,0 +1,36 @@
+/* RxShield Custom Stylesheet */
+:root {
+    --primary-color: #0284c7;
+    --primary-hover: #0369a1;
+    --bg-surface: #f8fafc;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: #1e293b;
+    background-color: #f8fafc;
+}
+
+.navbar-brand {
+    letter-spacing: -0.02em;
+}
+
+.border-dashed {
+    border-style: dashed !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.transition-all {
+    transition: all 0.2s ease-in-out;
+}
+
+#dropZone:hover {
+    background-color: #f1f5f9 !important;
+}
+
+.font-monospace {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
